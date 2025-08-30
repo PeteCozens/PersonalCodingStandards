@@ -4,6 +4,7 @@ This document contains my personal standards for developing C# projects for Wind
 # Development Languages
 * All development is to be done in C#, using .Net 8
 * Web Applications are to be written in either Blazor or Asp.Net Core, depending on requirements
+* Transactional / Relational data should be stored in either a Microsoft SQL Server or Azure SQL database
 * Each solution must contain a Unit Test project, that contains unit tests for all functionality using the Microsoft Test SDK. The unit test project will only be built in the Debug configuration
 * All projects will perform diagnostic logging (locally in the case of windows software, or Application Insights for Azure-hosted systems)
 * Applications should always use dependency injection unless they are considered too basic to require it. Once the application has started, and the configuration has been read, the appropriate services can be added to the ServiceProvider based on the configuration settings.

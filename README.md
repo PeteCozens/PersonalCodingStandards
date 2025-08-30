@@ -13,10 +13,11 @@
 - Prefer **Dependency Injection**; after startup/config read, register services into the DI container based on config.
 - **Data access**: prefer **EF Core (Code-First)** for app-owned databases; use **Dapper** for third-party DBs and for calling stored procedures.
 - Larger solutions should implement **Clean Architecture**, splitting the solution into the following projects (at a minimum):
-  1. Domain - contains Data Models, Interfaces and common code that does NOT implement application logic or interact directly with external resources 
-  2. Infrastructure - contains classes implementing interfaces in the Domain project for interacting with external resources
-  3. Application - contains all of the business logic, without interacting directly with any external resources (asides from using Domain Interfaces)
-  4. Program - contains the code for application startup and User Interface. Reads configuration, populates and hosts the ServiceProvider for Dependency Injection and contains code for the User Interface.
+  1. **Domain** - contains Data Models, Interfaces and common code that does NOT implement application logic or interact directly with external resources 
+  2. **Infrastructure** - contains classes implementing interfaces in the Domain project for interacting with external resources
+  3. **Application** - contains all of the business logic, without interacting directly with any external resources - instances of the appropriate infrastructure classes should be passed as parameters to the constructors or methods as objects of the appropriate Domain interface. In instances where a method with the Application needs to instantiate multiple instances of an infrastructure class object, a factory method should be passed as a Func<IMyInterface> parameter, rather than passing in an instance to the ServiceProvider.
+  4. **Program** - contains the code for application startup and User Interface. Reads configuration, populates and hosts the ServiceProvider for Dependency Injection and contains code for the User Interface.
+  5. **UnitTests** - contains unit tests for the other projects. Contains a child folder called TestData where files containing raw data for unit tests and expected outputs are stored as a part of the project.
 
 
 ---

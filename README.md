@@ -7,6 +7,7 @@ This document contains my personal standards for developing C# projects for Wind
 * Each solution must contain a Unit Test project, that contains unit tests for all functionality using the Microsoft Test SDK. The unit test project will only be built in the Debug configuration
 * All projects will perform diagnostic logging (locally in the case of windows software, or Application Insights for Azure-hosted systems)
 * Applications should always use dependency injection unless they are considered too basic to require it. Once the application has started, and the configuration has been read, the appropriate services can be added to the ServiceProvider based on the configuration settings.
+* Applications should generally use Entity Framework (Code First) for interaction with their own databases. Dapper should be used to query third-party databases and may also be used to call stored procedures.
 
 # NuGet packages
 ## Package selection

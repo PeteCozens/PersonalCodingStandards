@@ -4,13 +4,25 @@ This document contains my personal standards for developing C# projects for Wind
 # Development Languages
 * All development is to be done in C#, using .Net 8
 * Web Applications are to be written in either Blazor or Asp.Net Core, depending on requirements
-* Each solution will contain a Unit Test project, that contains unit tests for all functionality using the Microsoft Test SDK
+* Each solution must contain a Unit Test project, that contains unit tests for all functionality using the Microsoft Test SDK. The unit test project will only be built in the Debug configuration
 * All projects will perform diagnostic logging (locally in the case of windows software, or Application Insights for Azure-hosted systems)
+* Applications should always use dependency injection unless they are considered too basic to require it. Once the application has started, and the configuration has been read, the appropriate services can be added to the ServiceProvider based on the configuration settings.
 
 # NuGet packages
 ## Package selection
 * Any NuGet packages that have not been maintained within the last three years are generally considered defunct and should not be used.
 * Whenever functionality from a NuGet package is used within a C# class, the name of the package it is from should always be included as a comment at the top of the file, generally after any "using" statements that reference that package. This comment should also contain details of any external dependencies that are not included in the package.
+
+# Configuration
+* All configuration values should be stored in an environment-specific appsettings.json files.
+* In the case of sensitive data, such as connection strings, the values in the .json files should read "sensitive". The actual values should be stored in a local secrets file in the development environment, and in environment variables in test or production.
+* Configuration settings should be read in the following order:
+  1. appsettings.json
+  2. appsettings.{environment}.json
+  3. local secrets (Debug mode only)
+  4. environment variables 
+  5. Azure key vault (if appropriate)
+* Configuration settings should be read in application startup. If the application uses dependency injection, the configuration should be added to the application's ServiceProvider
 
 # Azure
 * All resources should be hosted in the North Europe region unless otherwise specified

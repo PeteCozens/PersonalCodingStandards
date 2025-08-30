@@ -1,47 +1,136 @@
-# Personal Coding Standards
-This document contains my personal standards for developing C# projects for Windows and Azure. It is intended solely to provide consistency and maintainability of my code.
+# Personal Coding Standards (C# + Azure)
 
-# Development Languages
-* All development is to be done in C#, using .Net 8
-* Web Applications are to be written in either Blazor or Asp.Net Core, depending on requirements
-* Transactional / Relational data should be stored in either a Microsoft SQL Server or Azure SQL database
-* Each solution must contain a Unit Test project, that contains unit tests for all functionality using the Microsoft Test SDK. The unit test project will only be built in the Debug configuration
-* All projects will perform diagnostic logging (locally in the case of windows software, or Application Insights for Azure-hosted systems)
-* Applications should always use dependency injection unless they are considered too basic to require it. Once the application has started, and the configuration has been read, the appropriate services can be added to the ServiceProvider based on the configuration settings.
-* Applications should generally use Entity Framework (Code First) for interaction with their own databases. Dapper should be used to query third-party databases and may also be used to call stored procedures.
+> Scope: All C#/.NET 8 repositories for Windows & Azure. This document enforces consistent engineering practice across apps, libraries, tests, scripts, and CI/CD.
 
-# NuGet packages
-## Package selection
-* Any NuGet packages that have not been maintained within the last three years are generally considered defunct and should not be used.
-* Whenever functionality from a NuGet package is used within a C# class, the name of the package it is from should always be included as a comment at the top of the file, generally after any "using" statements that reference that package. This comment should also contain details of any external dependencies that are not included in the package.
+---
 
-# Configuration
-* All configuration values should be stored in an environment-specific appsettings.json files.
-* In the case of sensitive data, such as connection strings, the values in the .json files should read "sensitive". The actual values should be stored in a local secrets file in the development environment, and in environment variables in test or production.
-* Configuration settings should be read in the following order:
-  1. appsettings.json
-  2. appsettings.{environment}.json
-  3. local secrets (Debug mode only)
-  4. environment variables 
-  5. Azure key vault (if appropriate)
-* Configuration settings should be read in application startup. If the application uses dependency injection, the configuration should be added to the application's ServiceProvider
+## 1. Languages & Platforms
+- **C# / .NET 8** for all development.
+- Web apps in **Blazor** or **ASP.NET Core** (choose per requirements).
+- **Relational data** hosted in **Microsoft SQL Server** or **Azure SQL**.
+- **Unit tests**: a MSTest project **in every solution**; **only built in Debug**.
+- **Logging** is mandatory: local sinks for Windows apps; **Azure Application Insights** for Azure-hosted systems.
+- Prefer **Dependency Injection**; after startup/config read, register services into the DI container based on config.
+- **Data access**: prefer **EF Core (Code-First)** for app-owned databases; use **Dapper** for third-party DBs and for calling stored procedures.
 
-# Azure
-* All resources should be hosted in the North Europe region unless otherwise specified
-* All resources should use Free Tiers in debug and test environments, or the lowest cost alternatives if no free tier is available
-* All logging will use Azure Application Insights
-* App Services such as Web Apps, Functions and so on are not to be created for Debug environments as it is expected that they will be run in a local debugger
-  
-## Naming conventions
-Resources in Azure will follow a strict naming convention, as follows:
 
-* Resource groups will be named after the application, all in lower case with dashes instead of any spaces. In the case of a project with multiple environments, this will be followed by a dash and the first four letters of the environment name in lower case.
-* Azure Web Apps and App Services will be named "app-" followed by the resource group name
-* Azure Functions will be named "fn-" followed by the resource group name
-* Azure Insights will be named "in-" followed by the resource group name
-* SQL Databases will be named "sql-" followed by the resource group name
-* Storage Accounts will be named "st-" followed by the resource group name
-* Azure Key Vaults will be named "kv-" followed by the resource group name
+---
 
-# Terraform
-Any project or solution that depends upon Azure resources should use an Infrastructure As Code approach, and generate the appropriate Terraform files to deploy and tear-down all required Azure resources, including storing connection strings for all generated resources as environment variables or in Azure Key Vault (if a vault has been specified as part of the project requirements). Generally, projects will have Development, Test and Production environments, and in such cases a terraform variables file will be required for each to define any environment-specific variables and configuration (such as the environment name, which will feed into Azure resource names)
+## 2. NuGet Packages
+**Selection**
+- Avoid packages with **no maintenance in the last 3 years**.
+- When a file uses a package, add a **comment at the top of the file** listing:
+  - The package name(s).
+  - Any **external dependencies** not included by that package.
+
+**Governance**
+- Prefer **1st-party Microsoft** packages when equivalent.
+- Centralize versions via `Directory.Packages.props` where possible.
+
+---
+
+## 3. Configuration
+- Store settings in **environment-specific `appsettings.json`** files.
+- For **sensitive** values (e.g., connection strings), commit the key with value `"sensitive"`:
+  - **Development** actual values in **User Secrets**.
+  - **Test/Prod** in **environment variables** (or **Azure Key Vault** when appropriate).
+- **Loading order** (earliest wins later):  
+  1. `appsettings.json`  
+  2. `appsettings.{Environment}.json`  
+  3. **User Secrets** (Debug only)  
+  4. **Environment variables**  
+  5. **Azure Key Vault** (if used)
+- Read configuration at **application startup** using a strongly-typed class and register the bound options into DI as a singleton.
+
+---
+
+## 4. Azure Standards
+- **Region**: **North Europe** (unless explicitly specified otherwise).
+- **Cost**: use **Free tiers** in Debug/Test (or the **lowest-cost** alternative if no free tier available).
+- **Telemetry**: all logging flows to **Application Insights**.
+- **Debug environment**: **do not create** App Services/Functions in Azure; run locally under debugger.
+
+### 4.1 Azure Resource Naming
+- **Resource Group**: application name, **lowercase**, dashes for spaces; for multi-env, append `-` plus first four letters of environment (lowercase).
+- **Prefixes**:
+  - Web Apps / App Services: `app-<rg>`
+  - Functions: `fn-<rg>`
+  - Application Insights: `in-<rg>`
+  - SQL Databases: `sql-<rg>`
+  - Storage Accounts: `st-<rg>`
+  - Key Vaults: `kv-<rg>`
+
+---
+
+## 5. Infrastructure as Code (Terraform)
+- Use **Terraform** for any project that depends on Azure resources. The IaC must:
+  - Deploy **all required resources** and **tear down** cleanly.
+  - **Export connection strings/secrets** to **environment variables** or **Key Vault** (if specified).
+- Environments: typically **Dev**, **Test**, **Prod**.  
+  Provide a **variables file per environment** to define environment-specific values (e.g., environment name feeding the Azure naming).
+
+---
+
+## 6. C# Code Style & Project Defaults
+
+### 6.1 Project SDK defaults
+Add in each `.csproj` (or central `Directory.Build.props`):
+
+```
+<PropertyGroup>
+  <TargetFramework>net8.0</TargetFramework>
+  <LangVersion>latest</LangVersion>
+  <Nullable>enable</Nullable>
+  <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  <AnalysisLevel>latest</AnalysisLevel>
+</PropertyGroup>
+```
+
+### 6.2 Naming (enforced via EditorConfig)
+- **PascalCase**: namespaces, types, public members, events, properties, methods.
+- **camelCase**: locals, parameters.
+- **_camelCase**: private fields. Use `s_` for private static; `t_` for `[ThreadStatic]`.
+- **I** prefix for interfaces; **Async** suffix for async methods; **Completed/Changed** for events.
+
+### 6.3 Formatting & Layout
+- **4-space** indentation; **LF** line endings; UTF-8; trim trailing whitespace; final newline.
+- **File-scoped namespaces**; one public type per file; filename = type.
+- `using` **outside** namespace; `System.*` first; remove unused.
+- Prefer **braces**; allow expression-bodied members for trivial accessors.
+
+### 6.4 Language Practices
+- Prefer `var` when obvious; explicit type otherwise.
+- Use modern features: pattern matching, switch expressions, `using` declarations, `await using`.
+- Guard clauses: `ArgumentNullException.ThrowIfNull(x);`
+- Avoid double enumeration with LINQ; materialize with `ToList()` when needed.
+- **Exceptions**: use specific types; never swallow; don’t use for flow control.
+- **Async**: avoid `.Result/.Wait()`; library code uses `ConfigureAwait(false)`.
+
+### 6.5 Dependency Injection & Logging
+- Prefer **constructor injection**. Avoid service locator/static state.
+- **Structured logging** only (no string concat):  
+  `logger.LogInformation("Processed {Count}", count);`  
+  Never log secrets/PII.
+
+### 6.6 Documentation & Comments
+- XML docs for **public** APIs; comments capture **why**, not what.
+
+### 6.7 Testing (MSTest)
+- Deterministic, isolated tests; one logical assertion per test.
+- Naming: `Method_Scenario_ExpectedResult`.
+- For this repo family, the MSTest project **builds in Debug only** (as per §1).
+
+---
+
+## 7. Security & Secrets
+- **Never commit secrets**. Use User Secrets (Dev) and **env vars/Key Vault** (Test/Prod) per §3.
+- Do not log secrets/PII. Prefer **redaction** patterns.
+- Validate all external input at boundaries; **parameterize** DB access (EF/Dapper).
+
+---
+
+## 8. Deviation Policy
+- If you must deviate, add a short **justification comment** and link the tracking issue.
+- Suppress analyzer rules **locally** (not globally) with justification.
+
+---

@@ -12,6 +12,11 @@
 - **Logging** is mandatory: local sinks for Windows apps; **Azure Application Insights** for Azure-hosted systems.
 - Prefer **Dependency Injection**; after startup/config read, register services into the DI container based on config.
 - **Data access**: prefer **EF Core (Code-First)** for app-owned databases; use **Dapper** for third-party DBs and for calling stored procedures.
+- Larger solutions should implement **Clean Architecture**, splitting the solution into the following projects (at a minimum):
+  1. Domain - contains Data Models, Interfaces and common code that does NOT implement application logic or interact directly with external resources 
+  2. Infrastructure - contains classes implementing interfaces in the Domain project for interacting with external resources
+  3. Application - contains all of the business logic, without interacting directly with any external resources (asides from using Domain Interfaces)
+  4. Program - contains the code for application startup and User Interface. Reads configuration, populates and hosts the ServiceProvider for Dependency Injection and contains code for the User Interface.
 
 
 ---

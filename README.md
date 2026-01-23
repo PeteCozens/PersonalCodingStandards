@@ -58,16 +58,18 @@
 - **Debug environment**: **do not create** App Services/Functions in Azure; run locally under debugger.
 
 ### 4.1 Azure Resource Naming
-- **Resource Group**: application name, mixed case, dashes for spaces; for multi-env, append `-` plus first four letters of environment (lowercase).
-- **Other Asset Types**:
-  - Web Apps / App Services: `<rg>-app`
-  - Functions: `<rg>-fn`
-  - Application Insights: `<rg>-ai`
-  - SQL Databases: `<rg>-sql`
-  - Storage Accounts: `<rg>-st`
-  - Key Vaults: `<rg>-kv`
-- In the case where Azure insists upon names being globally/universally unique, they should be further suffixed by a dash and a 6 character random string
-- If assets are created for non-production environments, they should be further suffixed with the environment name
+In the naming conventions below <rg> is the resource group name and <rnd> is a 6 character random alphanumeric string (lowercase) that is specific to the resource group
+- **Resource Group**: application name, mixed case, dashes for spaces
+- **App Service Plan**: `<rg>-asp`
+- **App Service**: `<rg>-app-<rnd>`
+- **Function**: `<rg>-fn-<rnd>`
+- **Application Insights**: `<rg>-ai`
+- **SQL Databases**: `<rg>-sql`
+- **Storage Accounts**: `<rg>st<rnd>` lowercase, with any non-alphanumerics removed
+- **Key Vaults**: `<rg>kv<rnd>` lowercase, with any non-alphanumerics removed
+- Any other asset types should have their names start with the resource group name, sufficed with an abbreviation of the asset type. If the name needs to be globally unique, then it should be further suffixed with the random string.
+- If assets are created for non-production environments, their names should be further suffixed with the environment name (prefixed with a dash, if allowed)
+- Azure naming rules MUST be adhered to for every asset type
 - Note that all resource names should be modified to comply with Azure naming conventions (all lowercase if required, no dashes if required, etc.)
 
 ---

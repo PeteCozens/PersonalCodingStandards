@@ -60,7 +60,7 @@
 ### 4.1 Azure Resource Naming
 In the naming conventions below <rg> is the resource group name and <rnd> is a 6 character random alphanumeric string (lowercase) that is specific to the resource group
 - **Resource Group**: application name, mixed case, dashes for spaces
-- **App Service Plan**: `<rg>-asp`
+- **App Service Plan**: `<rg>-plan`
 - **App Service**: `<rg>-app-<rnd>`
 - **Function**: `<rg>-fn-<rnd>`
 - **Application Insights**: `<rg>-ai`

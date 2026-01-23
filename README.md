@@ -1,17 +1,18 @@
 # Personal Coding Standards (C# + Azure)
 
-> Scope: All C#/.NET 8 repositories for Windows & Azure. This document enforces consistent engineering practice across apps, libraries, tests, scripts, and CI/CD.
+> Scope: All C#/.NET 10 repositories for Windows & Azure. This document enforces consistent engineering practice across apps, libraries, tests, scripts, and CI/CD.
 
 ---
 
 ## 1. Languages & Platforms
-- **C# / .NET 8** for all development.
+- **C# / .NET 10** for all development.
 - Web apps in **Blazor** or **ASP.NET Core** (choose per requirements).
 - **Relational data** hosted in **Microsoft SQL Server** or **Azure SQL**.
+- **Bulk Data** hosted in **MongoDB** or **CosmosDB**
 - **Unit tests**: a MSTest project **in every solution**; **only built in Debug**.
 - **Logging** is mandatory: local sinks for Windows apps; **Azure Application Insights** for Azure-hosted systems.
 - Prefer **Dependency Injection**; after startup/config read, register services into the DI container based on config.
-- **Data access**: prefer **EF Core (Code-First)** for app-owned databases; use **Dapper** for third-party DBs and for calling stored procedures.
+- **Data access**: prefer **EF Core (Code-First)** for app-owned relational databases; use **Dapper** for third-party relational DBs and for calling stored procedures.
 - Larger solutions should implement **Clean Architecture**, splitting the solution into the following projects (at a minimum):
   1. **Domain** - contains Data Models, Interfaces and common code that does NOT implement application logic or interact directly with external resources 
   2. **Infrastructure** - contains classes implementing interfaces in the Domain project for interacting with external resources
@@ -84,7 +85,7 @@ Add in each `.csproj` (or central `Directory.Build.props`):
 
 ```
 <PropertyGroup>
-  <TargetFramework>net8.0</TargetFramework>
+  <TargetFramework>net10.0</TargetFramework>
   <LangVersion>latest</LangVersion>
   <Nullable>enable</Nullable>
   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -132,6 +133,7 @@ Add in each `.csproj` (or central `Directory.Build.props`):
 - **Never commit secrets**. Use User Secrets (Dev) and **env vars/Key Vault** (Test/Prod) per §3.
 - Do not log secrets/PII. Prefer **redaction** patterns.
 - Validate all external input at boundaries; **parameterize** DB access (EF/Dapper).
+- Ensure that no secrets are stored in terraform state files
 
 ---
 

@@ -1,6 +1,6 @@
-# Personal Coding Standards (C# + Azure)
+# Personal Coding Standards (C# and Azure/Web development)
 
-> Scope: All C#/.NET 10 repositories for Windows & Azure. This document enforces consistent engineering practice across apps, libraries, tests, scripts, and CI/CD.
+> Scope: All C#/.NET 10 repositories for Windows, Azure or generic Web development. This document enforces consistent engineering practice across apps, libraries, tests, scripts, and CI/CD.
 
 ---
 
@@ -10,7 +10,7 @@
 - **Relational data** hosted in **Microsoft SQL Server** or **Azure SQL**.
 - **Bulk Data** hosted in **MongoDB** or **CosmosDB**
 - **Unit tests**: a MSTest project **in every solution**; **only built in Debug**.
-- **Logging** is mandatory: local sinks for Windows apps; **Azure Application Insights** for Azure-hosted systems.
+- **Logging** is mandatory: local sinks for Windows apps or any hosted in generic ASP.Net hosting services; **Azure Application Insights** for Azure-hosted systems.
 - Prefer **Dependency Injection**; after startup/config read, register services into the DI container based on config.
 - **Data access**: prefer **EF Core (Code-First)** for app-owned relational databases; use **Dapper** for third-party relational DBs and for calling stored procedures.
 - Larger solutions should implement **Clean Architecture**, splitting the solution into the following projects (at a minimum):
@@ -19,7 +19,7 @@
   3. **Application** - contains all of the business logic, without interacting directly with any external resources - instances of the appropriate infrastructure classes should be passed as parameters to the constructors or methods as objects of the appropriate Domain interface. In instances where a method with the Application needs to instantiate multiple instances of an infrastructure class object, a factory method should be passed as a Func<IMyInterface> parameter, rather than passing in an instance to the ServiceProvider.
   4. **Program** - contains the code for application startup and User Interface. Reads configuration, populates and hosts the ServiceProvider for Dependency Injection and contains code for the User Interface.
   5. **UnitTests** - contains unit tests for the other projects. Contains a child folder called TestData where files containing raw data for unit tests and expected outputs are stored as a part of the project.
-
+- **Hosting**: assume that all Web Development is to be hosted on a generic ASP.Net hosting site or in IIS unless Azure is specifically mentioned in the requirements. Use available Azure components wherever possible when the requirements state that the software is to be Azure hosted.
 
 ---
 
